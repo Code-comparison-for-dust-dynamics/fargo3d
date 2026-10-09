@@ -131,6 +131,7 @@ SEQOPT_LINUX  = -O3
 PARAOPT_LINUX = ${SEQOPT_LINUX}
 PARACC_LINUX  = mpicc
 LIBS_LINUX    = -lm
+ENVRANK_LINUX = OMPI_COMM_WORLD_LOCAL_RANK
 INC_LINUX     = 
 NVCC_LINUX    = nvcc
 CUDAOPT_LINUX = -O3 -w #-arch=sm_XX # try utils/cuda/get_cuda_sm.sh

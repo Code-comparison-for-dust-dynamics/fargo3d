@@ -67,7 +67,8 @@ def complete_parameters(base,params):
     return params
 
 def check_coherence(base,params):
-    for key in params.keys():
+    # Iterate over a copy: entries are removed in the loop
+    for key in list(params):
             if key in base:
                 continue
             else:
@@ -184,6 +185,13 @@ os.system(line)
 line = make + " -j{0:d} ".format(njobs)
 for key in final_params.keys():
     line += key + "=" + final_params[key] + " "
+
+# FARGO_CUDA_ARCH, if set, selects the nvcc target without becoming a
+# sticky flag
+cuda_arch = os.environ.get("FARGO_CUDA_ARCH")
+if cuda_arch:
+    # One shell word, so that make does not read -w and -arch as its own options
+    line += "CUDAOPT_LINUX='-O3 -w -arch=" + cuda_arch + "' "
 
 line += " allp"
 
