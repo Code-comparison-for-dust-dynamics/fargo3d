@@ -100,3 +100,78 @@ KEPLERIAN3DSPHVAZIMCOL:
 #### Allow outflow only at inner mesh edge
 OPENINNER:
 	Staggered: |(a>0.0 ? 0.0: a)|(a>0.0 ? 0.0: a)|a|
+
+
+##############################################################
+### Model B (Paper II): analytic boundaries of the initial state,
+### for a spherical mesh (Y = r, Z = colatitude). R = r sin(theta).
+##############################################################
+
+# Gas density, radial ghosts: rho_g = SIGMA0 (R/R0)^-2.25 exp[...]
+MODELBGAS3DDENSRAD:
+	Centered: |'SIGMA0'*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',-2.25)*exp((sin(Zmed(k))-1.0)/(pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')))|active|
+
+# Gas density, polar ghosts
+MODELBGAS3DDENSCOL:
+	Centered: |'SIGMA0'*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',-2.25)*exp((sin(Zmed(kgh))-1.0)/(pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX')))|active|
+
+# Gas internal energy rho_g c_s^2/(gamma-1), radial ghosts
+MODELBGAS3DENERGYRAD:
+	Centered: |('SIGMA0'*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',-2.25)*exp((sin(Zmed(k))-1.0)/(pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')))) * (pow('ASPECTRATIO'*pow((Ymed(jgh)*sin(Zmed(k)))/'R0','FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k)))), 2.0)) / ('GAMMA'-1.0)|active|
+
+# Gas internal energy, polar ghosts
+MODELBGAS3DENERGYCOL:
+	Centered: |('SIGMA0'*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',-2.25)*exp((sin(Zmed(kgh))-1.0)/(pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX')))) * (pow('ASPECTRATIO'*pow((Ymed(j)*sin(Zmed(kgh)))/'R0','FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh)))), 2.0)) / ('GAMMA'-1.0)|active|
+
+# Gas v_r = v_R sin(theta), v_R = -1.5 alpha c_s^2/(Omega_K R)
+MODELBGAS3DVRRAD:
+	Centered:  |(-1.5*'ALPHA'*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k))))) * sin(Zmed(k))|active|
+	Staggered: |(-1.5*'ALPHA'*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k))))) * sin(Zmed(k))|active|active|
+
+MODELBGAS3DVRCOL:
+	Centered:  |(-1.5*'ALPHA'*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh))))) * sin(Zmed(kgh))|active|
+	Staggered: |(-1.5*'ALPHA'*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh))))) * sin(Zmed(kgh))|active|active|
+
+# Gas v_phi in the frame rotating at OMEGAFRAME
+MODELBGAS3DVPHIRAD:
+	Centered:  |sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k))) * (0.5 + 0.5*sin(Zmed(k)) - 2.75*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX'))) - (Ymed(jgh)*sin(Zmed(k)))*'OMEGAFRAME'|active|
+	Staggered: |sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k))) * (0.5 + 0.5*sin(Zmed(k)) - 2.75*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX'))) - (Ymed(jgh)*sin(Zmed(k)))*'OMEGAFRAME'|active|active|
+
+MODELBGAS3DVPHICOL:
+	Centered:  |sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh))) * (0.5 + 0.5*sin(Zmed(kgh)) - 2.75*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX'))) - (Ymed(j)*sin(Zmed(kgh)))*'OMEGAFRAME'|active|
+	Staggered: |sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh))) * (0.5 + 0.5*sin(Zmed(kgh)) - 2.75*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX'))) - (Ymed(j)*sin(Zmed(kgh)))*'OMEGAFRAME'|active|active|
+
+# Gas v_theta = v_R cos(theta)
+MODELBGAS3DVZ:
+	Centered:  |(-1.5*'ALPHA'*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(k))))) * cos(Zmed(k))|active|
+	Staggered: |(-1.5*'ALPHA'*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(k))))) * cos(Zmed(k))|active|active|
+
+# Dust density, radial ghosts: EPSILON times the gas density
+MODELBDUST3DDENSRAD:
+	Centered: |'EPSILON'*'SIGMA0'*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',-2.25)*exp((sin(Zmed(k))-1.0)/(pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')))|active|
+
+# Dust v_r, v_theta and v_phi: steady drift of Nakagawa et al. (1986)
+MODELBDUST3DVRRAD:
+	Centered:  |((2.0*'INVSTOKES1'/(1.0+pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'))*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k))))) * sin(Zmed(k))|active|
+	Staggered: |((2.0*'INVSTOKES1'/(1.0+pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'))*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k))))) * sin(Zmed(k))|active|active|
+
+MODELBDUST3DVPHIRAD:
+	Centered:  |(1.0+((1.0+'EPSILON')*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*'INVSTOKES1'*'INVSTOKES1')/(pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'+1.0))*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k)))) - (Ymed(jgh)*sin(Zmed(k)))*'OMEGAFRAME'|active|
+	Staggered: |(1.0+((1.0+'EPSILON')*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(jgh)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*'INVSTOKES1'*'INVSTOKES1')/(pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'+1.0))*sqrt('G'*'MSTAR'/(Ymed(jgh)*sin(Zmed(k)))) - (Ymed(jgh)*sin(Zmed(k)))*'OMEGAFRAME'|active|active|
+
+MODELBDUST3DVPHICOL:
+	Centered:  |(1.0+((1.0+'EPSILON')*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX')*'INVSTOKES1'*'INVSTOKES1')/(pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'+1.0))*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh)))) - (Ymed(j)*sin(Zmed(kgh)))*'OMEGAFRAME'|active|
+	Staggered: |(1.0+((1.0+'EPSILON')*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(kgh)))/'R0',2.0*'FLARINGINDEX')*'INVSTOKES1'*'INVSTOKES1')/(pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'+1.0))*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(kgh)))) - (Ymed(j)*sin(Zmed(kgh)))*'OMEGAFRAME'|active|active|
+
+MODELBDUST3DVZ:
+	Centered:  |((2.0*'INVSTOKES1'/(1.0+pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'))*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(k))))) * cos(Zmed(k))|active|
+	Staggered: |((2.0*'INVSTOKES1'/(1.0+pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'))*(-11.0/8.0)*pow('ASPECTRATIO',2.0)*pow((Ymed(j)*sin(Zmed(k)))/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/(Ymed(j)*sin(Zmed(k))))) * cos(Zmed(k))|active|active|
+
+# Dust density, polar ghosts: effectively empty (~1e-75); the dust floor applies
+MODELBDUST3DDENSCOL:
+	Centered: |1.0e-6*pow(Ymed(j)/'R0',-2.25)*exp((Ymed(j)/('ASPECTRATIO'*'ASPECTRATIO'*pow(Ymed(j)/'R0',2.*'FLARINGINDEX')))*(1.0/sqrt(Ymed(j)*Ymed(j)+Zmed(kgh)*Zmed(kgh))-1.0/Ymed(j)))|active|
+
+# Dust v_r and v_theta, polar ghosts
+MODELBDUST3DVZERO:
+	Centered:  |0.0|active|
+	Staggered: |0.0|active|active|

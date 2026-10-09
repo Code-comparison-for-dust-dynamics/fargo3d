@@ -9,6 +9,7 @@ std/.lastflags
 std/.lastflags.old
 *.pyc
 *.blocks
+!setups/modelB_*/*.blocks
 *.tar.gz
 *.ipynb_checkpoints
 *.units

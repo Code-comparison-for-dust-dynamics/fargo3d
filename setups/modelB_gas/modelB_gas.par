@@ -1,0 +1,72 @@
+Setup			modelB_gas
+
+### Model B (Paper II), gas stage: 100 orbits shared by all six runs
+
+### Disk
+
+AspectRatio		0.05		Aspect ratio at R0
+Sigma0			1.0		Density normalisation at R0
+SigmaSlope		1.0		Surface density slope
+FlaringIndex		0.25		Flaring index
+Alpha			1.0e-2		Shakura-Sunyaev alpha
+Beta			1.0		Cooling time in units of 1/Omega_K
+Gamma			1.4		Adiabatic index
+
+### Dust
+
+Invstokes1		10.0		1/St (no effect in this stage)
+Epsilon			1.0e-20		Negligible dust: no drag in this stage
+DUST_HRATIO		1.0		Dust scale height in units of the gas one
+
+### Floors and dust velocity caps (floor.cu)
+
+GASFLOOR			1.0e-7	Gas density floor
+DUSTFLOOR			1.0e-9	Dust density floor
+ENERGYFLOOR			1.0e-10	Gas internal energy floor
+DUST_TVCAP_FLAG			1	Terminal-velocity cap (1 = on)
+DUST_TVCAP_FACTOR		2.0	Cap in units of the terminal drift
+DUST_TVCAP_D2G_MAX		1.0e-3	Dust-to-gas ratio below which it may act
+DUST_TVCAP_RHO_FLOOR_FACTOR	2.0e4	...and dust density below this times DUSTFLOOR
+DUST_TVCAP_LOW_GAS_FLOOR_FACTOR	5.0e3	Profile cap where gas < this times GASFLOOR
+DUST_TVCAP_VRATIO_OVERRIDE	8.0	Forced where |dv|/|v_g| exceeds this
+DUST_TVCAP_MACH_OVERRIDE	8.0	Forced where |dv|/c_s exceeds this
+DUST_TVCAP_Z_HG_RATIO		2.5	Altitude (in H) of the high-altitude override
+RELATIVE_MEDIAN_CAP_FLAG	1	Relative-median cap (1 = on)
+RELATIVE_MEDIAN_CAP_FACTOR	8.0	Cap on |v_d| in units of the neighbours' median
+
+### Planet
+
+PlanetConfig		planets/modelB_J3e-4.cfg
+RocheSmoothing		0.6		Potential softening in Hill radii
+Eccentricity		0.0
+IndirectTerm		yes
+
+### Mesh
+
+Nx			768		Azimuthal zones
+Ny			256		Radial zones
+Nz			128		Colatitude zones
+
+Xmin			-3.14159265358979323844
+Xmax			3.14159265358979323844
+Ymin			0.3
+Ymax			2.3
+Zmin			1.320796326794897
+Zmax			1.820796326794897
+
+OmegaFrame		1.0
+Frame			G
+
+### Damping zones (stockholm.c)
+
+DampingZone		1.2
+TauDamp			0.1
+
+### Output
+
+CFL			0.3
+DT			0.314159265359	One orbit is 20 DT
+Ninterm			100		Output every 5 orbits
+Ntot			2000
+
+OutputDir		@outputs/modelB_gas
