@@ -389,6 +389,8 @@ void (*AmbipolarDiffusion_emfx)();
 void (*AmbipolarDiffusion_emfy)();
 void (*AmbipolarDiffusion_emfz)();
 void (*AmbipolarDiffusion_coeff)();
+
+void (*Edamp)(real);
 //.............................................
 
 void (*StockholmBoundary)(real);

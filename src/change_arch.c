@@ -128,6 +128,9 @@ void ChangeArch() {
   AmbipolarDiffusion_emfy  = AmbipolarDiffusion_emfy_cpu;
   AmbipolarDiffusion_emfz  = AmbipolarDiffusion_emfz_cpu;
   AmbipolarDiffusion_coeff = AmbipolarDiffusion_coeff_cpu;
+
+  // BETA COOLING
+  Edamp = Edamp_cpu;
   // ------------------------------------------------------
   
   _collisions = _collisions_cpu;
@@ -495,6 +498,12 @@ void ChangeArch() {
 	  DustDiffusion_Core         = DustDiffusion_Core_gpu;
 	  DustDiffusion_Coefficients = DustDiffusion_Coefficients_gpu;
 	  printf("Dust diffusion runs on the GPU\n");
+	}
+      }
+      if (strcmp(name, "edamp") == 0) {
+	if(strval[0] == 'g'){
+	  Edamp = Edamp_gpu;
+	  printf("Beta cooling runs on the GPU\n");
 	}
       }
       if (strcmp(name, "communications") == 0) {

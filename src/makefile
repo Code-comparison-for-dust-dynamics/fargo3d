@@ -352,6 +352,7 @@ MAINOBJ  = LowTasks.o psys.o main.o param.o var.o usage.o   	    \
 	   floor.o ShearingPeriodicBC.o summary.o		\
 	   dust_diffusion_main.o dust_diffusion_core.o		\
 	   dust_diffusion_coefficients.o copy_field.o           \
+	   edamp.o						\
 	   nimhd_hall_effect.o 					\
 	   nimhd_hall_effect_emfx.o				\
 	   nimhd_hall_effect_emfy.o 				\
@@ -407,6 +408,7 @@ GPU_OBJBLOCKS =  CompPresIso_gpu.o CompPresAd_gpu.o 		\
            totaldens_gpu.o floor_gpu.o		                \
 	   resetfield_gpu.o dust_diffusion_core_gpu.o		\
 	   dust_diffusion_coefficients_gpu.o                    \
+	   edamp_gpu.o						\
 	   nimhd_hall_effect_emfx_gpu.o				\
 	   nimhd_hall_effect_emfy_gpu.o 			\
            nimhd_hall_effect_emfz_gpu.o 			\
