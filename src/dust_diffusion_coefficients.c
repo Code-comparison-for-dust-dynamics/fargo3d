@@ -5,16 +5,22 @@
 
 //<INCLUDES>
 #include "fargo3d.h"
+
+#ifndef DUSTDIFFD2G_REDUCTION
+#define DUSTDIFFD2G_REDUCTION 0
+#endif
 //<\INCLUDES>
+
+#if DUSTDIFFD2G_REDUCTION && !defined(ALPHAVISCOSITY)
+#error "DUSTDIFFD2G_REDUCTION requires ALPHAVISCOSITY"
+#endif
 
 void DustDiffusion_Coefficients_cpu() {
 
 //<USER_DEFINED>
 #ifdef ALPHAVISCOSITY
   INPUT(Energy);
-#ifdef ADIABATIC
   INPUT(Density);
-#endif
 #endif
   OUTPUT(Sdiffyczc);
   OUTPUT(Sdiffyfzc);
@@ -31,7 +37,7 @@ void DustDiffusion_Coefficients_cpu() {
   real* sdiff_yczf = Sdiffyczf->field_cpu;
   real* sdiff_yfzf = Sdiffyfzf->field_cpu;
 #endif
-#ifdef ALPHAVISCOSITY  
+#ifdef ALPHAVISCOSITY
 #ifdef ISOTHERMAL
   real* cs = Fluids[0]->Energy->field_cpu;
 #endif
@@ -44,13 +50,15 @@ void DustDiffusion_Coefficients_cpu() {
 #else
   real nu = NU;
 #endif
+  real invstokes = INVSTOKES1;
   int pitch  = Pitch_cpu;
   int stride = Stride_cpu;
   int size_x = Nx+2*NGHX;
   int size_y = Ny+2*NGHY;
   int size_z = Nz+2*NGHZ;
+  real* rhod_field = Density->field_cpu;
 //<\EXTERNAL>
-  
+
 //<INTERNAL>
   int i;
   int j;
@@ -65,6 +73,8 @@ void DustDiffusion_Coefficients_cpu() {
   real soundspeedf2;
   real soundspeedfz2;
 #endif
+  real St;
+  real correction;
 //<\INTERNAL>
 
 //<CONSTANT>
@@ -110,16 +120,42 @@ void DustDiffusion_Coefficients_cpu() {
 	  soundspeedf2 = soundspeed2;
 	else
 	  soundspeedf2 = gamma*(gamma-1.0)*(e[ll]+e[llym])/(rhog[ll]+rhog[llym]);
-#endif
+
+#ifdef Z
+	if(k==0)
+	  soundspeedfz2 = soundspeed2;
+	else
+	  soundspeedfz2 = gamma*(gamma-1.0)*(e[ll]+e[llzm])/(rhog[ll]+rhog[llzm]);
+#endif // Z
+#endif // ADIABATIC
 	r3yczc = ymed(j)*ymed(j)*ymed(j);
 	r3yfzc = ymin(j)*ymin(j)*ymin(j);
-
-	sdiff_yczc[ll] = alphavisc*soundspeed2/sqrt(G*MSTAR/r3yczc);
-	sdiff_yfzc[ll] = alphavisc*soundspeedf2/sqrt(G*MSTAR/r3yfzc);
+	St = 1.0 / invstokes;
+	correction = 1.0 / (1.0 + St * St);
+	sdiff_yczc[ll] = alphavisc*soundspeed2/sqrt(G*MSTAR/r3yczc)*correction;
+	sdiff_yfzc[ll] = alphavisc*soundspeedf2/sqrt(G*MSTAR/r3yfzc)*correction;
 #ifdef Z
-	sdiff_yczf[ll] = alphavisc*soundspeedfz2/sqrt(G*MSTAR/r3yczc);
-	sdiff_yfzf[ll] = alphavisc*soundspeedfz2/sqrt(G*MSTAR/r3yfzc);
+	sdiff_yczf[ll] = alphavisc*soundspeedfz2/sqrt(G*MSTAR/r3yczc)*correction;
+	sdiff_yfzf[ll] = alphavisc*soundspeedfz2/sqrt(G*MSTAR/r3yfzc)*correction;
 #endif //Z
+
+#if DUSTDIFFD2G_REDUCTION
+	// D_d / (1 + rho_d/rho_g), as Athena++ does
+	real rhod = rhod_field[ll];
+	real rhog_safe = rhog[ll];
+	if (rhog_safe < 1e-30) rhog_safe = 1e-30;
+	real d2g = rhod / rhog_safe;
+	if (d2g > 0.0) {
+	  real d2g_reduction = 1.0 / (1.0 + d2g);
+	  sdiff_yczc[ll] *= d2g_reduction;
+	  sdiff_yfzc[ll] *= d2g_reduction;
+#ifdef Z
+	  sdiff_yczf[ll] *= d2g_reduction;
+	  sdiff_yfzf[ll] *= d2g_reduction;
+#endif
+	}
+#endif // DUSTDIFFD2G_REDUCTION
+
 #endif
 #ifdef VISCOSITY
 	sdiff_yczc[ll] = nu;
