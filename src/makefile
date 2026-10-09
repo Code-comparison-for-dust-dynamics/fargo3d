@@ -640,6 +640,17 @@ collisions.cu: collisions_template.cu ${GLOBAL}
 	@echo C2CUDA $< "==>" $*.cu
 	@${PYTHON} ${SCRIPTSDIR}/c2cuda.py -i $< -o $*.cu -s ${SETUP}	
 
+# A setup that ships a handwritten GPU floor (setups/<setup>/floor.cu) must be
+# compiled from it. Without this rule a src/floor.c newer than that file -- as a
+# fresh checkout can leave them -- makes the %.cu rule above regenerate floor.cu
+# from the generic CPU floor, silently dropping the setup's caps.
+ifneq ($(wildcard ${SETUPSDIR}/${SETUP}/floor.cu),)
+floor_gpu.o : ${SETUPSDIR}/${SETUP}/floor.cu ${GLOBAL}
+	@echo NVCC $< "==>" $@
+	@/bin/cp -f $< $(ARCHDIR)
+	@${NVCC} $< -c ${CUDAOPT} ${CUDAINC} ${INCLUDE} -o $@ ${FARGO_OPT}
+endif
+
 reduction_sum_device.o: reduction_sum_device.cu
 	@echo NVCC $< "==>" $*.o
 	@/bin/cp -f $< $(ARCHDIR)
