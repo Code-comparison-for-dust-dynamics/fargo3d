@@ -87,6 +87,8 @@ void StockholmBoundary_cpu(real dt) {
   real flaring_index = FLARINGINDEX;
   real damping_rate_val = DAMPING_RATE;
   real epsilon = EPSILON;
+  real sigma0 = SIGMA0;
+  real sigmaslope = SIGMASLOPE;
   real invstokes1 = INVSTOKES1;
   real dust_hratio = DUST_HRATIO;
 //<\EXTERNAL>
@@ -223,16 +225,23 @@ void StockholmBoundary_cpu(real dt) {
 	    if (R_cyl < 1.0e-12) R_cyl = 1.0e-12;
 
 	    {
-	      const real dlnP_dlnR = -11.0/4.0;
 	      real omegaK = sqrt(G * MSTAR / (R_cyl * R_cyl * R_cyl));
 	      real vK = omegaK * R_cyl;
 	      real H_over_R = aspect_ratio * pow(R_cyl / r0, flaring_index);
+#ifdef Z
+	      /* 3D: midplane pressure slope and the vertical dust profile */
+	      const real dlnP_dlnR = -11.0/4.0;
 	      real cs2 = aspect_ratio * aspect_ratio *
 	                 pow(R_cyl / r0, 2.0 * flaring_index) *
 	                 (G * MSTAR / R_cyl);
 	      real dust_rho_target = (epsilon * pow(R_cyl / r0, -2.25) / dust_hratio) *
 	                             exp((G * MSTAR) / (dust_hratio * dust_hratio * cs2) *
 	                                 (1.0 / r_sph - 1.0 / R_cyl));
+#else
+	      /* 2D: slope of P = Sigma c_s^2, and EPSILON times the initial Sigma_g */
+	      const real dlnP_dlnR = -sigmaslope + 2.0 * flaring_index - 1.0;
+	      real dust_rho_target = epsilon * sigma0 * pow(R_cyl / r0, -sigmaslope);
+#endif
 	      if (dust_rho_target < 1.0e-20) dust_rho_target = 1.0e-20;
 
 	      {

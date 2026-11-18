@@ -1,0 +1,18 @@
+# Model B in 2D, fluid 0 (gas): cylindrical (X = phi periodic, Y = R).
+# Radial ghosts are set to the analytic initial state (std/boundaries.txt).
+
+Density:
+        Ymin: MODELBGAS2DDENS
+        Ymax: MODELBGAS2DDENS
+
+Energy:
+        Ymin: MODELBGAS2DENERGY
+        Ymax: MODELBGAS2DENERGY
+
+Vx:     # azimuthal velocity v_phi,g
+        Ymin: MODELBGAS2DVPHI
+        Ymax: MODELBGAS2DVPHI
+
+Vy:     # radial velocity v_R,g
+        Ymin: MODELBGAS2DVR
+        Ymax: MODELBGAS2DVR

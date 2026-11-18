@@ -7,7 +7,8 @@
 # exported): source dust_body.sh PROFILE
 #   CASE = contdiff | nodiff,  ST = 0.1 | 0.0316 | 0.01
 #   GAS_DIR (optional) = gas-stage outputs, default $FARGO_OUTPUT_ROOT/modelB_gas
-# Output: $FARGO_OUTPUT_ROOT/<CASE>_St<ST> (default root $SCRATCH/fargo3d_rerun).
+# Output: $FARGO_OUTPUT_ROOT/<CASE>_St<ST> (default root $SCRATCH/fargo3d_rerun); with DIM=2D, the
+# setups modelB2D_* and outputs 2D_<CASE>_St<ST> (gas stage 2D_modelB_gas).
 
 profile=${1:?usage: source dust_body.sh PROFILE}
 source "$profile"
@@ -24,9 +25,9 @@ case "${ST:?export ST=0.1, 0.0316 or 0.01}" in
   *) echo "ERROR: ST must be 0.1, 0.0316 or 0.01, got $ST" >&2; exit 2 ;;
 esac
 
-setup=modelB_$CASE
-gas_dir=${GAS_DIR:-"$output_root/modelB_gas"}
-out="$output_root/${CASE}_St$ST"
+setup=${SETUP_PREFIX}_$CASE
+gas_dir=${GAS_DIR:-"$output_root/${OUT_PREFIX}modelB_gas"}
+out="$output_root/${OUT_PREFIX}${CASE}_St$ST"
 final=300
 
 if [[ -f "$out/summary$final.dat" ]]; then

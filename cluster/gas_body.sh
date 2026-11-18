@@ -1,14 +1,15 @@
 #!/bin/bash
 # Gas stage of the Model B runs: 0 to 100 orbits (outputs 0 to 20), shared by
 # every dust run. Usage (from a Slurm wrapper): source gas_body.sh PROFILE
-# Output: $FARGO_OUTPUT_ROOT/modelB_gas (default $SCRATCH/fargo3d_rerun/modelB_gas).
+# Output: $FARGO_OUTPUT_ROOT/modelB_gas (default $SCRATCH/fargo3d_rerun/modelB_gas); with DIM=2D,
+# setup modelB2D_gas and output 2D_modelB_gas.
 
 profile=${1:?usage: source gas_body.sh PROFILE}
 source "$profile"
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-setup=modelB_gas
-out="$output_root/$setup"
+setup=${SETUP_PREFIX}_gas
+out="$output_root/${OUT_PREFIX}modelB_gas"
 
 if [[ -d "$out" ]]; then
   if [[ -f "$out/gasdens0.dat" && -n "$(last_complete_output "$out" 20 "$out/gasdens0.dat")" ]]; then

@@ -1,0 +1,14 @@
+# Model B in 2D, fluid 1 (dust): cylindrical (X = phi periodic, Y = R).
+# Radial ghosts: EPSILON times the gas, with the steady drift of Nakagawa et al. (1986).
+
+Density:
+        Ymin: MODELBDUST2DDENS
+        Ymax: MODELBDUST2DDENS
+
+Vx:
+        Ymin: MODELBDUST2DVPHI
+        Ymax: MODELBDUST2DVPHI
+
+Vy:
+        Ymin: MODELBDUST2DVR
+        Ymax: MODELBDUST2DVR

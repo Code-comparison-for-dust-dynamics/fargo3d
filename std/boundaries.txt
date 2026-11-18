@@ -175,3 +175,39 @@ MODELBDUST3DDENSCOL:
 MODELBDUST3DVZERO:
 	Centered:  |0.0|active|
 	Staggered: |0.0|active|active|
+
+# ---------------------------------------------------------------------------
+# Model B in two dimensions (cylindrical: X = phi, Y = R), radial ghosts.
+# Sigma_g = SIGMA0 (R/R0)^-1, c_s^2 = h^2 GM/R with h = ASPECTRATIO (R/R0)^FLARINGINDEX,
+# so P = Sigma c_s^2 has dlnP/dlnR = -1.5 and eta = -(3/4) h^2.
+
+# Gas surface density
+MODELBGAS2DDENS:
+	Centered: |'SIGMA0'*pow(Ymed(jgh)/'R0',-1.0)|active|
+
+# Gas internal energy Sigma_g c_s^2/(gamma-1)
+MODELBGAS2DENERGY:
+	Centered: |'SIGMA0'*pow(Ymed(jgh)/'R0',-1.0)*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*'G'*'MSTAR'/Ymed(jgh)/('GAMMA'-1.0)|active|
+
+# Gas v_R = -1.5 alpha gamma c_s^2/(Omega_K R)
+MODELBGAS2DVR:
+	Centered:  |-1.5*'ALPHA'*'GAMMA'*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/Ymed(jgh))|active|
+	Staggered: |-1.5*'ALPHA'*'GAMMA'*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/Ymed(jgh))|active|active|
+
+# Gas v_phi = v_K sqrt(1 - 1.5 h^2), in the frame rotating at OMEGAFRAME
+MODELBGAS2DVPHI:
+	Centered:  |sqrt('G'*'MSTAR'/Ymed(jgh)*(1.0-1.5*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX'))) - Ymed(jgh)*'OMEGAFRAME'|active|
+	Staggered: |sqrt('G'*'MSTAR'/Ymed(jgh)*(1.0-1.5*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX'))) - Ymed(jgh)*'OMEGAFRAME'|active|active|
+
+# Dust surface density: EPSILON times the gas
+MODELBDUST2DDENS:
+	Centered: |'EPSILON'*'SIGMA0'*pow(Ymed(jgh)/'R0',-1.0)|active|
+
+# Dust v_R and v_phi: steady drift of Nakagawa et al. (1986) with eta = -(3/4) h^2
+MODELBDUST2DVR:
+	Centered:  |(2.0*'INVSTOKES1'/(1.0+pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'))*(-0.75)*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/Ymed(jgh))|active|
+	Staggered: |(2.0*'INVSTOKES1'/(1.0+pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'))*(-0.75)*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*sqrt('G'*'MSTAR'/Ymed(jgh))|active|active|
+
+MODELBDUST2DVPHI:
+	Centered:  |(1.0+((1.0+'EPSILON')*(-0.75)*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*'INVSTOKES1'*'INVSTOKES1')/(pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'+1.0))*sqrt('G'*'MSTAR'/Ymed(jgh)) - Ymed(jgh)*'OMEGAFRAME'|active|
+	Staggered: |(1.0+((1.0+'EPSILON')*(-0.75)*pow('ASPECTRATIO',2.0)*pow(Ymed(jgh)/'R0',2.0*'FLARINGINDEX')*'INVSTOKES1'*'INVSTOKES1')/(pow(1.0+'EPSILON',2.0)*'INVSTOKES1'*'INVSTOKES1'+1.0))*sqrt('G'*'MSTAR'/Ymed(jgh)) - Ymed(jgh)*'OMEGAFRAME'|active|active|

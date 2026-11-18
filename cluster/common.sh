@@ -3,15 +3,23 @@
 
 set -euo pipefail
 
-FIELDS=(gasdens gasenergy gasvx gasvy gasvz dust1dens dust1vx dust1vy dust1vz)
+# DIM=3D (default): spherical runs on four GPUs; DIM=2D: (R, phi) runs on one GPU.
+DIM=${DIM:-3D}
+case "$DIM" in
+  3D) FIELDS=(gasdens gasenergy gasvx gasvy gasvz dust1dens dust1vx dust1vy dust1vz)
+      NRANKS=4; SETUP_PREFIX=modelB; OUT_PREFIX="" ;;
+  2D) FIELDS=(gasdens gasenergy gasvx gasvy dust1dens dust1vx dust1vy)
+      NRANKS=1; SETUP_PREFIX=modelB2D; OUT_PREFIX=2D_ ;;
+  *) echo "ERROR: DIM must be 3D or 2D, got $DIM" >&2; exit 2 ;;
+esac
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 output_root=${FARGO_OUTPUT_ROOT:-"$SCRATCH/fargo3d_rerun"}
 
 : "${SLURM_JOB_ID:?Run this inside a Slurm job.}"
 : "${SLURM_TMPDIR:?SLURM_TMPDIR is not set.}"
-if [[ ${SLURM_NTASKS:-0} -ne 4 ]]; then
-  echo "ERROR: expected four MPI ranks (one per H100), got SLURM_NTASKS=${SLURM_NTASKS:-unset}." >&2
+if [[ ${SLURM_NTASKS:-0} -ne $NRANKS ]]; then
+  echo "ERROR: $DIM runs use $NRANKS MPI rank(s), one per GPU; got SLURM_NTASKS=${SLURM_NTASKS:-unset}." >&2
   exit 2
 fi
 
