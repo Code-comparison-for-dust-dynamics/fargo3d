@@ -6,7 +6,7 @@ These are launchers for Fir, Rorqual, Nibi and Trillium (GPU). Each job:
 - writes to `$FARGO_OUTPUT_ROOT`, which defaults to `$SCRATCH/fargo3d_rerun`;
 - appends the commit, modules and binary hash to `provenance.txt` in the output directory.
 
-Submit from the repository root. On Trillium, submit from the GPU login node `trig-login01`.
+Submit from the repository root. On Trillium, submit from the GPU login node `trig-login01`, and keep the clone in `$SCRATCH`. Home and project are read-only on its compute nodes, and jobs submitted from `$HOME` are rejected.
 
 | stage | script | output | time |
 |---|---|---|---|
