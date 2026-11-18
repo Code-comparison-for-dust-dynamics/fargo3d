@@ -99,6 +99,8 @@ __global__ void Apply_Floor_Kernel(real *dens,
     v_z = vz[mem];
     if (!(v_z >= (real)-1.0e30 && v_z <= (real)1.0e30)) v_z = (real)0.0;
   }
+#else
+  real v_z = (real)0.0;  // 2D: no vertical velocity
 #endif
 
   real R_cyl = y_val;

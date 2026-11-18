@@ -52,6 +52,17 @@ rsync -av --include='*20.dat' --include='planet0.dat' --include='domain_*.dat' -
   fyyu@fir.alliancecan.ca:/scratch/fyyu/fargo3d_rerun/modelB_gas/ $SCRATCH/fargo3d_rerun/modelB_gas/
 ```
 
+## 2D runs (R, phi)
+
+`cluster/<cluster>/gas2d.sh` and `dust2d.sh` run the setups `modelB2D_*` on one GPU each, with the same `CASE` and `ST`. They write to `2D_modelB_gas` and `2D_<CASE>_St<ST>`. A 2D run takes a few hours, so one 12-hour dust job is normally enough. If it is not, a second job continues it.
+
+```bash
+g=$(sbatch --parsable cluster/nibi/gas2d.sh)
+for s in 0.1 0.0316 0.01; do
+  sbatch --dependency=afterok:$g --job-name=2D-cd-St$s --export=ALL,CASE=contdiff,ST=$s cluster/nibi/dust2d.sh
+done
+```
+
 ## Queue estimates
 
 `sbatch --test-only` returns the scheduler's current estimate of the start time. It does not submit a job.
