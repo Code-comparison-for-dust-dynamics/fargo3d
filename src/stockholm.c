@@ -6,9 +6,11 @@
 //<INCLUDES>
 #include "fargo3d.h"
 
-/* Model B damping zones (Athena++ style): the gas relaxes toward its initial
-   state and the dust toward the steady drift solution, at a rate set by
-   DAMPING_RATE*Omega_K and a parabolic profile across each radial zone. */
+/* Model B damping zones, as in Athena++ (de Val-Borro et al. 2006): the gas
+   relaxes toward its initial state and the dust toward the steady drift
+   solution. Each step a cell moves the fraction 1 - exp(-DAMPING_RATE*Omega_K
+   *R(R_cyl)*dt) of the way, where R is a parabolic profile in cylindrical
+   radius across each radial zone. */
 #ifndef DAMPING_RATE
 #define DAMPING_RATE 1.0
 #endif
@@ -79,7 +81,6 @@ void StockholmBoundary_cpu(real dt) {
   real of    = OMEGAFRAME;
   real of0   = OMEGAFRAME0;
   real r0 = R0;
-  real ds = TAUDAMP;
   int periodic_z = PERIODICZ;
   int fluidtype = Fluidtype;
   real aspect_ratio = ASPECTRATIO;
@@ -115,12 +116,12 @@ void StockholmBoundary_cpu(real dt) {
   real radius;
   real vx0_target;
   real rampy;
+  real rampyi;
   real rampz;
   real rampzz;
   real rampi;
   real ramp;
-  real tau;
-  real taud;
+  real omega_dyn_y;
 //<\INTERNAL>
 
 //<CONSTANT>
@@ -144,25 +145,26 @@ void StockholmBoundary_cpu(real dt) {
 #endif
 //<#>
 	rampy = 0.0;
+	rampyi = 0.0;
 	rampz = 0.0;
 	rampzz = 0.0;
+	omega_dyn_y = 0.0;
 #ifdef Y
+	/* Radial profile in cylindrical radius at the cell centre (rampy) and at
+	   the colatitude face of v_theta (rampyi) */
 	real R_cyl_r = ymed(j);
+	real R_cyl_i = ymed(j);
+#ifdef SPHERICAL
+	R_cyl_r *= sin(zmed(k));
+	R_cyl_i *= sin(zmin(k));
+#endif
 	if (R_cyl_r < 1e-12) R_cyl_r = 1e-12;
-	real omega_dyn_y = sqrt(G * MSTAR / (R_cyl_r * R_cyl_r * R_cyl_r));
+	omega_dyn_y = sqrt(G * MSTAR / (R_cyl_r * R_cyl_r * R_cyl_r));
 
-	if(ymed(j) > Y_sup) {
-	  real R_func = pow((ymed(j) - Y_sup) / (y_max - Y_sup), 2.0);
-	  real inv_damping_tau = damping_rate_val * omega_dyn_y;
-	  real alpha = R_func * inv_damping_tau * dt;
-	  if (alpha > (real)0.0) rampy = (real)1.0 - exp(-alpha);
-	}
-	if(ymed(j) < Y_inf) {
-	  real R_func = pow((Y_inf - ymed(j)) / (Y_inf - y_min), 2.0);
-	  real inv_damping_tau = damping_rate_val * omega_dyn_y;
-	  real alpha = R_func * inv_damping_tau * dt;
-	  if (alpha > (real)0.0) rampy = (real)1.0 - exp(-alpha);
-	}
+	if(R_cyl_r > Y_sup) rampy  = pow((R_cyl_r - Y_sup) / (y_max - Y_sup), 2.0);
+	if(R_cyl_r < Y_inf) rampy  = pow((Y_inf - R_cyl_r) / (Y_inf - y_min), 2.0);
+	if(R_cyl_i > Y_sup) rampyi = pow((R_cyl_i - Y_sup) / (y_max - Y_sup), 2.0);
+	if(R_cyl_i < Y_inf) rampyi = pow((Y_inf - R_cyl_i) / (Y_inf - y_min), 2.0);
 #endif
 #ifdef Z
 	if(zmed(k) > Z_sup) {
@@ -185,11 +187,9 @@ void StockholmBoundary_cpu(real dt) {
 	  rampzz = 0.0;
 	}
 	ramp = rampy+rampz;
-	rampi= rampy+rampzz;
-	tau = ds*sqrt(ymed(j)*ymed(j)*ymed(j)/G/MSTAR);
+	rampi= rampyi+rampzz;
 	if (ramp > 0.0) {
-	  real alpha = dt * ramp / tau;
-	  real w     = 1.0 - exp(-alpha);
+	  real w = 1.0 - exp(-damping_rate_val * omega_dyn_y * ramp * dt);
 
 	  if (fluidtype == GAS) {
 	    rho[l] += (rho0[l2D] - rho[l]) * w;
@@ -262,8 +262,7 @@ void StockholmBoundary_cpu(real dt) {
 	}
 #ifdef Z
 	if (rampi > 0.0 && fluidtype == GAS) {
-	  real alpha = dt * rampi / tau;
-	  real w     = 1.0 - exp(-alpha);
+	  real w = 1.0 - exp(-damping_rate_val * omega_dyn_y * rampi * dt);
 	  vz[l] += (vz0[l2D] - vz[l]) * w;
 	}
 #endif

@@ -60,8 +60,7 @@ Frame			G
 
 ### Damping zones (stockholm.c)
 
-DampingZone		1.2
-TauDamp			0.1
+DampingZone		1.1		Radial zones r < Ymin*1.1^(2/3), r > Ymax*1.1^(-2/3), as in Athena++
 
 ### Output
 

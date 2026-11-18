@@ -4,7 +4,8 @@
    Spherical mesh: Y = r, Z = colatitude; R = r sin(theta), z = r cos(theta).
 
    Gas:  rho_g = (R/R0)^p exp[GM/c_s^2 (1/r - 1/R)],  c_s^2 = h0^2 GM (R/R0)^q,
-         v_R = -3/2 alpha c_s^2/(Omega_K R),
+         v_R = -3/2 alpha gamma c_s^2/(Omega_K R), the steady viscous inflow
+         for nu = alpha gamma c_s^2/Omega_K (adiabatic sound speed),
          v_phi = sqrt(GM/R) sqrt((p+q) c_s^2 R/GM + 1 + q - q R/r),
    Dust: rho_d = EPSILON rho_g, with the steady drift of Nakagawa et al. (1986):
          v_R = 2 St/(St^2 + (1+eps)^2) eta v_K,
@@ -57,7 +58,7 @@ void _CondInit() {
         if (rhog < safe_rho_floor) rhog = safe_rho_floor;
         rhod = EPSILON * rhog;
 
-        vR_g = -1.5 * ALPHA * cs2_loc * R_cyl / sqrt(G * MSTAR * R_cyl);
+        vR_g = -1.5 * ALPHA * GAMMA * cs2_loc * R_cyl / sqrt(G * MSTAR * R_cyl);
 
         {
           real term1 = (pvalue + qvalue) * cs2_loc / (G * MSTAR / R_cyl);

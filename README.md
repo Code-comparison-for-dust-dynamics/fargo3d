@@ -9,15 +9,18 @@ FARGO3D documentation: <https://fargo3d.github.io/documentation>.
 
 - **Dust diffusivity.** `D = alpha c_s^2 / Omega_K / (1 + St^2)`, including
   the colatitude faces of an adiabatic disk, with an optional reduction by
-  `1 + rho_d/rho_g` (`DUSTDIFFD2G_REDUCTION`).
+  `1 + rho_d/rho_g` (`DUSTDIFFD2G_REDUCTION`, off in the setups of the paper).
 - **Beta cooling** (`BETACOOLING`). The gas relaxes toward its initial
   temperature on `t_cool = Beta / Omega_K`.
 - **Damping zones.** At the inner and outer radial edges, the gas is damped
-  toward its initial state and the dust toward its steady drift solution.
+  toward its initial state and the dust toward its steady drift solution, as
+  in the Athena++ problem generator. Each step a cell relaxes by the fraction
+  `1 - exp(-DAMPING_RATE Omega_K R dt)`, where `R` is a parabolic profile in
+  cylindrical radius across the zones `r < Ymin DampingZone^(2/3)` and
+  `r > Ymax DampingZone^(-2/3)`; `DAMPING_RATE` defaults to 1.
 - **Setups of the paper.** Initial state, analytic boundaries (in
-  `std/boundaries.txt`), gas and dust floors, the dust velocity caps of the
-  Athena++ problem generator (`setups/modelB_*/floor.cu`, GPU only), and the
-  dust release.
+  `std/boundaries.txt`), gas and dust floors and dust velocity caps
+  (`setups/modelB_*/floor.cu`, GPU only), and the dust release.
 - **Build.** Python 3.13 and CUDA 12 support, `FARGO_CUDA_ARCH` passed to
   nvcc, one GPU per local MPI rank, and a setup's handwritten `floor.cu`
   always compiled as written.
@@ -26,8 +29,11 @@ FARGO3D documentation: <https://fargo3d.github.io/documentation>.
 
 The disk follows Huang et al. (2025): `h = 0.05`, `alpha = 1e-2` and
 `Beta = 1`, with a planet of 2.4 thermal masses (mass ratio `3e-4`) on a fixed
-circular orbit at `R0 = 1`, on a 768 x 256 x 128 spherical mesh. A run has two
-stages:
+circular orbit at `R0 = 1`, on a 768 x 256 x 128 spherical mesh. The gas
+starts, and enters at the radial boundaries, with the steady viscous inflow
+`v_R = -3 nu / (2R)` of the viscosity `nu = alpha gamma c_s^2 / Omega_K`
+(the adiabatic sound speed squared, with `c_s = h v_K`), and the damping zones
+use `DampingZone = 1.1`. A run has two stages:
 
 | setup | stage |
 |---|---|
