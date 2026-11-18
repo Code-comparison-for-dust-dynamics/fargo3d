@@ -1,0 +1,4 @@
+# Fir: 4 H100 per node.
+FARGO_CLUSTER_NAME=fir
+FARGO_MODULES="StdEnv/2023 cuda/12.6 openmpi/4.1.5"
+FARGO_CUDA_ARCH=sm_90
