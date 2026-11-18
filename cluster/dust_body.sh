@@ -71,7 +71,7 @@ bdir=$(build_setup "$setup" "$out")
 write_provenance "$out" "$bdir"
 
 cd "$bdir"
-opts="Invstokes1,$invstokes,OutputDir,@$out"
+opts="Invstokes1,$invstokes,OutputDir,$out"
 if [[ -z "$restart" ]]; then
   echo "=== $CASE St=$ST: dust release from output 20, job $SLURM_JOB_ID, $(date --iso-8601=seconds)" | tee -a "$out/launch.log"
   mpirun -np "$SLURM_NTASKS" ./fargo3d -p -S 20 -o "$opts" "setups/$setup/$setup.par" \

@@ -27,7 +27,7 @@ write_provenance "$out" "$bdir"
 
 cd "$bdir"
 echo "=== gas stage, job $SLURM_JOB_ID, $(date --iso-8601=seconds)" | tee -a "$out/launch.log"
-mpirun -np "$SLURM_NTASKS" ./fargo3d -o "OutputDir,@$out" "setups/$setup/$setup.par" \
+mpirun -np "$SLURM_NTASKS" ./fargo3d -o "OutputDir,$out" "setups/$setup/$setup.par" \
   2>&1 | tee -a "$out/gas_run.log"
 
 if [[ -z "$(last_complete_output "$out" 20 "$out/gasdens0.dat")" ]]; then

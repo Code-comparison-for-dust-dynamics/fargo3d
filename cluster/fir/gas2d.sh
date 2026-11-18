@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --gpus=nvidia_h100_80gb_hbm3_1g.10gb:1
 #SBATCH --mem=4G
-#SBATCH --time=03:00:00
+#SBATCH --time=01:00:00
 #SBATCH --output=slurm-%x-%j.out
 # 2D (R, phi) Model B on one GPU. Submit from the repository root. See cluster/README.md.
 export DIM=2D
