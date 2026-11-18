@@ -54,7 +54,7 @@ rsync -av --include='*20.dat' --include='planet0.dat' --include='domain_*.dat' -
 
 ## 2D runs (R, phi)
 
-`cluster/<cluster>/gas2d.sh` and `dust2d.sh` run the setups `modelB2D_*` on one GPU each, with the same `CASE` and `ST`. They write to `2D_modelB_gas` and `2D_<CASE>_St<ST>`. A 2D run takes a few hours, so one 12-hour dust job is normally enough. If it is not, a second job continues it.
+`cluster/<cluster>/gas2d.sh` and `dust2d.sh` run the setups `modelB2D_*` with the same `CASE` and `ST`, on one MIG slice each (1g.10gb: one eighth of an H100 with 10 GB), one core and 4 GB. The grid has 2e5 cells and needs less than 1 GB on the GPU. Trillium has no MIG, so there a 2D job takes a whole GPU. If a slice is too slow, pass a larger one to `sbatch`, for example `--gpus=h100_2g.20gb:1` (on Fir `--gpus=nvidia_h100_80gb_hbm3_2g.20gb:1`). They write to `2D_modelB_gas` and `2D_<CASE>_St<ST>`. A 2D run takes a few hours, so one 12-hour dust job is normally enough. If it is not, a second job continues it.
 
 ```bash
 g=$(sbatch --parsable cluster/nibi/gas2d.sh)
